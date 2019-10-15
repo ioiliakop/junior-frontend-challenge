@@ -24,6 +24,7 @@ class App extends Component {
 
     fetch(url, {
       method: 'GET',
+      headers: { 'Accept': 'application/json' }
       }).then(response => {
         if (response.status === 200) {
           response.json().then(data => {
@@ -32,7 +33,7 @@ class App extends Component {
             });
             console.log('data: ', this.state.results);           
            })
-        }
+        } else (console.log(response));
     }).catch(error => console.error('Error:', error));
   }
 
@@ -55,7 +56,7 @@ class App extends Component {
   }
 
   handleResultClick(event) {
-    console.log('selected index:', event.target.innerText);
+    console.log('selected result:', event.target.innerText);
     this.setState({keyword: event.target.innerText});
   }
 
