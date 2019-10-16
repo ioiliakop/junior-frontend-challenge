@@ -14,7 +14,7 @@ class App extends Component {
     this.fetchResults = this.fetchResults.bind(this);
     this.handleResultClick = this.handleResultClick.bind(this);
     this.delay = 750;
-    this.timeout = null;
+    this.timeoutID = null;
   }
 
   fetchResults() {
@@ -38,12 +38,12 @@ class App extends Component {
   }
 
   handleChange(event) {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
+    if (this.timeoutID) {
+      clearTimeout(this.timeoutID);
     }
     this.setState({keyword: event.target.value
       }, () => this.state.keyword.length > 1 ? 
-          this.timeout = setTimeout(this.fetchResults, this.delay)
+          this.timeoutID = setTimeout(this.fetchResults, this.delay)
         : this.setState({results: []}));
     // this.setState({keyword: event.target.value
     //   }, () => this.state.keyword.length > 1 ? this.fetchResults() : this.setState({results: []}));
@@ -61,22 +61,29 @@ class App extends Component {
   }
 
   render() {
-    const buttonIsEnabled = this.state.results.length > 0;;
+    const hasResults = this.state.results.length > 0;
 
     return (
-      <div>
-      <h1>User Language: {this.state.userLanguage}</h1>
-      <h2>Keyword: {this.state.keyword}</h2>
-
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          What place are you looking for?
-          <input type="text" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleSubmit}/>
-        </label>
-        <input type="submit" value="Click to Search" disabled={!buttonIsEnabled}/>
-      </form>
-      <h2>Results:</h2>
-      {this.state.results.map((result, index) => <div key={index} onClick={this.handleResultClick}>{result}</div>)}
+      <div className="container pt-5">
+        {/* <h1>User Language: {this.state.userLanguage}</h1>
+        <h2>Keyword: {this.state.keyword}</h2> */}
+        <div className="row">
+          <div className="col"><img src="/xegr.jpg" alt="xe.gr logo" className="mx-auto d-block"/></div>
+          <form className="col-12 col-lg-8 col-xl-9 mx-auto" onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="inputText">What place are you looking for?</label>
+              <input type="text" className="form-control" id="inputText" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleSubmit}/>
+            </div>
+            {/* <label>
+              What place are you looking for?
+              <input type="text" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleSubmit}/>
+            </label> */}
+            <section className={'results border border-dark px-2 py-1 mb-3' + (!hasResults ? ' d-none' : '')}>
+            {this.state.results.map((result, index) => <div className="text-truncate" key={index} onClick={this.handleResultClick}>{result}</div>)}
+            </section>
+            <div className="d-flex justify-content-xl-start justify-content-lg-start justify-content-center"><input type="submit" className="btn btn-warning" value="Click to Search" disabled={!hasResults}/></div>
+          </form>
+        </div>
       </div>
     );
   }
