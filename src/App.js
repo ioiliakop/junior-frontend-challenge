@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import { isMobile } from 'react-device-detect';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      userLanguage: (navigator.language || navigator.userLanguage) === 'el' ? 'el' : 'en',
       keyword: '',
       results: []
     }
@@ -13,12 +13,18 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.fetchResults = this.fetchResults.bind(this);
     this.handleResultClick = this.handleResultClick.bind(this);
-    this.delay = 750;
+
+    // We assume browser language and device type don't change, therefore we calculate their values only once here
+    this.userLanguage = (navigator.language || navigator.userLanguage) === 'el' ? 'el' : 'en';
+    this.limit = isMobile ? 10 : 20;
+
+    // Needed to implement the blank period timeout before sending the request to the server
+    this.delay = 750;  // We can adjust the blank period here. Value is in ms
     this.timeoutID = null;
   }
 
   fetchResults() {
-    const url = 'http://35.180.182.8/Search?keywords=' + this.state.keyword + '&language=' + this.state.userLanguage + '&limit=20';
+    const url = 'http://35.180.182.8/Search?keywords=' + this.state.keyword + '&language=' + this.userLanguage + '&limit=' + this.limit;
 
     console.log('url: ', url);
 
@@ -29,7 +35,7 @@ class App extends Component {
         if (response.status === 200) {
           response.json().then(data => {
             this.setState({
-                results: data.entries.map((entry) => entry.name)
+                results: data.entries.map(entry => entry.name)
             });
             console.log('data: ', this.state.results);           
            })
@@ -49,9 +55,10 @@ class App extends Component {
     //   }, () => this.state.keyword.length > 1 ? this.fetchResults() : this.setState({results: []}));
   }
 
+  // Redirects to google.com
   handleSubmit(event) {
-    // window.location.assign('https://google.com/search?q=' + this.state.keyword);
-    window.open('https://google.com/search?q=' + this.state.keyword);
+    // window.location.assign('https://google.com/search?q=' + this.state.keyword); //in same tab
+    window.open('https://google.com/search?q=' + this.state.keyword); //in new tab
     event.preventDefault();
   }
 
@@ -65,24 +72,24 @@ class App extends Component {
 
     return (
       <div className="container pt-5">
-        {/* <h1>User Language: {this.state.userLanguage}</h1>
+        {/* <h1>User Language: {this.userLanguage}</h1>
         <h2>Keyword: {this.state.keyword}</h2> */}
         <div className="row">
           {/* <div className="desktopBanner border border-dark d-block">Banner Space</div> */}
-          <div className="col">
+          <div className="col mb-3">
             <img src="/xe.png" alt="xe logo" className="mx-auto d-block"/>
           </div>
           <form className="col-12 col-md-9 col-lg-8 col-xl-9 mx-auto" onSubmit={this.handleSubmit}>
             <div className="form-group mb-0">
               <label htmlFor="inputText">What place are you looking for?</label>
-              <input type="text" className="form-control" id="inputText" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleSubmit}/>
+              <input type="text" className="form-control" id="inputText" value={this.state.keyword} onChange={this.handleChange}/>
             </div>
             {/* <label>
               What place are you looking for?
               <input type="text" value={this.state.keyword} onChange={this.handleChange} onSubmit={this.handleSubmit}/>
             </label> */}
             <section className={'results border border-dark px-2 py-1' + (!resultsExist ? ' d-none' : '')}>
-            {this.state.results.map((result, index) => <div className="text-truncate" key={index} onClick={this.handleResultClick}>{result}</div>)}
+              {this.state.results.map((result, index) => <div className="text-truncate" key={index} onClick={this.handleResultClick}>{result}</div>)}
             </section>
             <div className="d-flex justify-content-lg-start justify-content-center my-4">
               <input type="submit" className="btn btn-warning" value="Click to Search" disabled={!resultsExist}/>
