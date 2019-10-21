@@ -23,12 +23,12 @@ class App extends Component {
     this.limit = isMobile ? 10 : 20;
 
     // Needed to implement the blank period timeout before sending the request to the server
-    this.delay = 750;  // We can adjust the blank period here. Value is in ms
+    this.timeout = 750;  // We can adjust the blank period here. Value is in milliseconds
     this.timeoutID = null;
   }
 
   // Fetches the results for the input keyword, after constructing the appropriate url
-  // Then sets the relative fields in the state
+  // Then sets their relative fields in the state
   fetchResults() {
     const url = 'http://35.180.182.8/Search?keywords=' + this.state.keyword + '&language=' + this.browserLanguage + '&limit=' + this.limit;
 
@@ -53,21 +53,22 @@ class App extends Component {
   // Handles changes in the input field
   // 1 - It clears the current timeoutID (if any)
   // 2 - It sets updated keyword to state
-  // 3 - It then sets a new timeoutID for the current change
-  // If it doesn't get cleared by a new change in the time period we have set (delay), it will
-  // either execute the fetchResults to get new results from the service
-  // or simply clear our results if the keyword is less than 2 characters
+  // 3 - It then checks if given keyword is 2 or more characters long
+  //   3a - If it is, it sets a new timeoutID for the current change, which in turn
+  //        if it doesn't get cleared by a new change in the time period we have set (timeout),
+  //        it will execute the fetchResults to get new results from the service
+  //   3b - If keyword is less than 2 characters long, it simply clears our results
   handleChange(event) {
     if (this.timeoutID) {
       clearTimeout(this.timeoutID);
     }
     this.setState({keyword: event.target.value
       }, () => this.state.keyword.length > 1
-        ? this.timeoutID = setTimeout(this.fetchResults, this.delay)
+        ? this.timeoutID = setTimeout(this.fetchResults, this.timeout)
         : this.setState({results: [], errorMessage: ''}));
   }
 
-  // Redirects to google.com making a search for the query
+  // Redirects to google.com making a search for the query given
   handleSubmit(event) {
     window.open('https://google.com/search?q=' + this.state.keyword); // in new tab
     // window.location.assign('https://google.com/search?q=' + this.state.keyword); // in same tab alternatively
@@ -92,7 +93,7 @@ class App extends Component {
         <div className="row">
           {/* Left vertical banner visible only in desktop (large (lg) and extra large (xl) viewports) */}
           <div className="d-none d-lg-block ml-3 col-lg-3 col-xl-2">
-            <img src="/banner_space_150x400.png" alt="desktop banner" className="border border-dark" height="400" width="150"/>
+            <img src="/banner_space_150x400.png" alt="desktop banner" className="border border-dark" width="150" height="400"/>
           </div>
           
           {/* Main container of our app, includes all other elements */}
@@ -103,7 +104,7 @@ class App extends Component {
               </div>
 
               {/* Form Section */}
-              <form className="col-md-10 col-lg-8 mx-auto ml-lg-3 ml-xl-n2" onSubmit={this.handleSubmit}>
+              <form className="col-md-10 col-lg-9 mx-auto ml-lg-3 ml-xl-n2" onSubmit={this.handleSubmit}>
                 <div className="form-group mb-0">
                   <label htmlFor="inputText">What place are you looking for?</label>
                   <input type="text" className="form-control" id="inputText" value={this.state.keyword} onChange={this.handleChange}/>

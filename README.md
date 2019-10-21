@@ -10,9 +10,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - [Bootstrap 4.3.1](https://getbootstrap.com/)
 - [react-device-detect](https://www.npmjs.com/package/react-device-detect)
 
-## To get the frontend running locally:
+## To get the frontend running locally
 
-- You need to have [npm](https://www.npmjs.com/get-npm) installed
+- You need to have [npm/node.js](https://www.npmjs.com/get-npm) installed
 - Clone this repo
 - In the project directory run:
   - `npm install` to install all required dependencies
